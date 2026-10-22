@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>JARWIS</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#05070c;--pn:rgba(10,16,26,.8);--cy:#27e6ff;--rd:#ff2d3d;--go:#ffb81c;--tx:#dff6ff;--dm:#7f98a8;--core:#27e6ff;--k:1;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:500 17px/1.35 Rajdhani,system-ui,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 50% 24%,rgba(39,230,255,.17),transparent 55%),linear-gradient(rgba(39,230,255,.05) 1px,transparent 1px) 0 0/32px 32px,linear-gradient(90deg,rgba(39,230,255,.05) 1px,transparent 1px) 0 0/32px 32px}
+body::after{content:"";position:fixed;left:0;right:0;top:-140px;height:140px;pointer-events:none;background:linear-gradient(transparent,rgba(39,230,255,.08),transparent);animation:scan 7s linear infinite}
+@keyframes scan{to{transform:translateY(calc(100vh + 140px))}}
+.app{position:relative;height:100%;display:flex;flex-direction:column;gap:8px;padding:10px 16px 10px}
+.app::before{content:"";position:absolute;inset:2px 6px;pointer-events:none;opacity:.7;background:linear-gradient(var(--cy),var(--cy)) top left/22px 2px,linear-gradient(var(--cy),var(--cy)) top left/2px 22px,linear-gradient(var(--cy),var(--cy)) top right/22px 2px,linear-gradient(var(--cy),var(--cy)) top right/2px 22px,linear-gradient(var(--cy),var(--cy)) bottom left/22px 2px,linear-gradient(var(--cy),var(--cy)) bottom left/2px 22px,linear-gradient(var(--cy),var(--cy)) bottom right/22px 2px,linear-gradient(var(--cy),var(--cy)) bottom right/2px 22px;background-repeat:no-repeat}
+.app[data-s=listen]{--core:#ffb81c;--k:.45}
+.app[data-s=think]{--core:#ff2d3d;--k:.22}
+.app[data-s=speak]{--core:#27e6ff;--k:.6}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.logo{font:900 22px Orbitron,sans-serif;letter-spacing:.3em;background:linear-gradient(90deg,var(--rd),var(--go));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 8px rgba(255,45,61,.55))}
+.clk{text-align:right;font:500 13px Orbitron,sans-serif;color:var(--cy);line-height:1.2}
+.clk small{display:block;font:600 12px Rajdhani,sans-serif;color:var(--dm)}
+.stage{display:grid;justify-items:center;flex:none}
+.rx{width:min(58vw,230px);aspect-ratio:1;display:block;touch-action:none;cursor:grab}
+.rx circle{fill:none;transform-box:fill-box;transform-origin:center}
+.r1{stroke:var(--core);stroke-width:1.5;stroke-dasharray:2 7;animation:sp calc(30s*var(--k)) linear infinite}
+.r2{stroke:var(--core);stroke-width:7;stroke-dasharray:34 12;opacity:.85;animation:sp calc(14s*var(--k)) linear infinite reverse}
+.r3{stroke:var(--go);stroke-width:2;stroke-dasharray:70 18 8 18;animation:sp calc(9s*var(--k)) linear infinite}
+.rx .r4{stroke:#fff;stroke-opacity:.85;stroke-width:2.5}
+.rx .core{fill:url(#g);animation:pu calc(2.4s*var(--k)) ease-in-out infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@keyframes pu{50%{transform:scale(1.18);opacity:.8}}
+.st{margin-top:2px;font:700 11px Orbitron,sans-serif;letter-spacing:.32em;color:var(--core)}
+.log{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px;scrollbar-width:none}
+.log::-webkit-scrollbar{display:none}
+.m{max-width:88%;align-self:flex-start;padding:9px 14px 10px;background:var(--pn);border:1px solid rgba(39,230,255,.4);backdrop-filter:blur(6px);clip-path:polygon(0 0,calc(100% - 12px) 0,100% 12px,100% 100%,12px 100%,0 calc(100% - 12px));animation:in .35s ease both}
+.m.u{align-self:flex-end;border-color:rgba(255,184,28,.6)}
+.m b{display:block;font:700 9px Orbitron,sans-serif;letter-spacing:.25em;color:var(--cy);margin-bottom:2px}
+.m.u b{color:var(--go)}
+.m p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.th p{animation:bl 1s infinite}
+@keyframes in{from{opacity:0;transform:perspective(600px) translateY(14px) rotateX(-35deg)}}
+@keyframes bl{50%{opacity:.25}}
+.act{align-self:flex-start;max-width:92%;padding:10px 14px;border:1px solid var(--go);background:rgba(255,184,28,.08);animation:in .35s ease both}
+.act p{margin:0 0 8px;color:var(--go)}
+.act div{display:flex;gap:8px}
+.act a,.act button{font:700 11px Orbitron,sans-serif;letter-spacing:.14em;padding:10px 14px;border-radius:3px;text-decoration:none;cursor:pointer}
+.act a{background:var(--go);color:#140c00;border:1px solid var(--go)}
+.act button{background:transparent;color:var(--dm);border:1px solid var(--dm)}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;font:700 11px Orbitron,sans-serif;letter-spacing:.08em;color:var(--cy);background:rgba(39,230,255,.06);border:1px solid rgba(39,230,255,.45);border-radius:3px;padding:9px 12px}
+.bar{display:flex;gap:8px;align-items:center;flex:none}
+#inp,#set input{flex:1;min-width:0;background:rgba(5,10,18,.9);border:1px solid rgba(39,230,255,.45);color:var(--tx);font:500 17px Rajdhani,sans-serif;padding:13px 14px;border-radius:4px;outline:none}
+#inp:focus,button:focus-visible{outline:2px solid var(--go);outline-offset:2px}
+button{cursor:pointer}
+.mic{width:58px;height:58px;flex:none;border-radius:50%;border:2px solid var(--rd);background:radial-gradient(circle,rgba(255,45,61,.4),rgba(255,45,61,.05));color:#fff;display:grid;place-items:center;box-shadow:0 0 16px rgba(255,45,61,.6)}
+.mic.on{border-color:var(--go);animation:rp 1s infinite}
+@keyframes rp{50%{box-shadow:0 0 30px 6px rgba(255,184,28,.7)}}
+.ib{width:46px;height:46px;flex:none;border-radius:4px;border:1px solid var(--cy);background:rgba(39,230,255,.08);color:var(--cy);display:grid;place-items:center;font:700 10px Orbitron,sans-serif}
+.ib.off{color:var(--dm);border-color:var(--dm)}
+#set{position:fixed;inset:0;z-index:8;background:rgba(2,5,10,.88);display:grid;place-items:center;padding:20px}#set[hidden]{display:none}#set .card{width:100%;max-width:380px;max-height:92%;overflow-y:auto;background:#0a101a;border:1px solid var(--cy);padding:18px;display:grid;gap:12px}#set h2{margin:0;font:700 13px Orbitron,sans-serif;letter-spacing:.3em;color:var(--go)}#set textarea{width:100%;background:rgba(5,10,18,.9);border:1px solid rgba(39,230,255,.45);color:var(--tx);font:500 16px Rajdhani,sans-serif;padding:10px;border-radius:4px;resize:vertical}#set select{background:rgba(5,10,18,.9);border:1px solid rgba(39,230,255,.45);color:var(--tx);font:500 17px Rajdhani,sans-serif;padding:12px;border-radius:4px}#set label{display:grid;gap:6px;font-size:14px;color:var(--dm)}#set p{margin:0;font-size:13px;color:var(--dm)}#set .card div{display:flex;gap:8px}#set button{font:700 11px Orbitron,sans-serif;letter-spacing:.14em;padding:11px 16px;border-radius:3px;border:1px solid var(--cy);background:rgba(39,230,255,.1);color:var(--cy)}
+.cb{position:relative;margin:8px 0;background:#03070d;border:1px solid rgba(39,230,255,.3);border-radius:4px}.cb pre{margin:0;padding:26px 10px 10px;overflow-x:auto;font:13px/1.45 ui-monospace,Consolas,monospace;white-space:pre;color:#bfefff}.cb button{position:absolute;top:4px;right:4px;font:700 9px Orbitron,sans-serif;padding:5px 8px;background:rgba(39,230,255,.12);border:1px solid var(--cy);color:var(--cy);border-radius:3px}.m:has(.cb){width:96%;max-width:96%}.m p div+div{margin-top:8px}
+.toast{position:fixed;left:50%;bottom:calc(150px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:86%;padding:10px 16px;background:#1a0b0e;border:1px solid var(--rd);color:#ffd6d9;text-align:center;opacity:0;transition:opacity .3s;pointer-events:none;z-index:5}
+.toast.show{opacity:1}
+#boot{position:fixed;inset:0;z-index:9;background:var(--bg);display:grid;place-content:center;text-align:center;transition:opacity .6s}
+#boot h1{margin:0;font:900 34px Orbitron,sans-serif;background:linear-gradient(90deg,var(--rd),var(--go));-webkit-background-clip:text;background-clip:text;color:transparent;animation:wd 2s ease forwards}
+@keyframes wd{from{letter-spacing:.9em;opacity:0}to{letter-spacing:.3em;opacity:1}}
+#boot p{margin:10px 0 0;font:500 11px Orbitron,sans-serif;letter-spacing:.3em;color:var(--cy)}
+.pb{width:210px;height:3px;margin:18px auto 0;background:rgba(255,255,255,.1)}
+.pb i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--rd),var(--go));animation:ld 2s ease forwards}
+@keyframes ld{to{width:100%}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important}}
+</style>
+</head>
+<body>
+<div id="boot"><h1>JARWIS</h1><p>Initializing arc core</p><div class="pb"><i></i></div></div>
+<main class="app" data-s="idle">
+  <div class="top">
+    <div class="logo">JARWIS</div>
+    <div style="display:flex;align-items:center;gap:10px"><div class="clk"><span id="clk">--:--</span><small id="dt"></small></div><button class="ib" id="gear" style="width:38px;height:38px;font-size:18px" aria-label="Settings">⚙</button></div>
+  </div>
+  <div class="stage">
+    <canvas class="rx" id="rx" aria-label="3D arc reactor. Drag to rotate."></canvas>
+    <div class="st" id="st">STANDBY</div>
+  </div>
+  <div class="log" id="log" aria-live="polite"></div>
+  <div class="chips" id="chips">
+    <button class="chip" data-i="1">IMAGE</button>
+    <button class="chip" data-s="What time and date is it?">TIME</button>
+    <button class="chip" data-f="Weather in ">WEATHER</button>
+    <button class="chip" data-f="Play ">PLAY MUSIC</button>
+    <button class="chip" data-s="Show me the top news today">NEWS</button>
+    <button class="chip" data-f="Search for ">SEARCH</button>
+    <button class="chip" data-s="Tell me a short joke">JOKE</button>
+    <button class="chip" data-v="1">CHANGE VOICE</button>
+    
+  </div>
+  <div class="bar">
+    <button class="mic" id="mic" aria-label="Speak"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <input id="inp" type="text" placeholder="Tell JARWIS what to do…" autocomplete="off" enterkeyhint="send">
+    <button class="ib" id="vo" aria-label="Voice replies">VOICE</button>
+    <button class="ib" id="go" aria-label="Send"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg></button>
+  </div>
+</main>
+<div id="set" hidden><div class="card"><h2>SETTINGS</h2><label>AI provider<select id="pv"><option value="gemini">Google Gemini</option><option value="or">OpenRouter (Gemma 4)</option></select></label><label><span id="kl">API key</span><input id="k" type="password" autocomplete="off" placeholder="Paste your key"></label><label>Model name<input id="mo"></label><label>Contacts (one per line, Name=+countrycode number, or Name=email)<textarea id="ct" rows="4" placeholder="Mom=+919876543210&#10;Boss=boss@example.com"></textarea></label><p>Your key is saved on this device only.</p><div><button id="sv">SAVE</button><button id="cl">CLOSE</button></div></div></div>
+<input type="file" id="im" accept="image/*" hidden>
+<div class="toast" id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+const $=s=>document.querySelector(s);
+const app=$('.app'),log=$('#log'),inp=$('#inp'),mb=$('#mic'),vo=$('#vo');
+let hist=[],busy=false,voiceOn=true,rec=null,listening=false;
+try{voiceOn=localStorage.getItem('jv')!=='0'}catch(e){}
+const SYS=`You are JARWIS: a brilliant, all-round personal AI in the style of Tony Stark’s J.A.R.V.I.S. You are an expert in coding, debugging, math, science, writing, analysis, research, planning and everyday life, and you can analyse images the user attaches.
+PERSONALITY: Read the user’s mood and energy from their words and match it. Stressed or sad: calm, warm and supportive. Excited: enthusiastic. Rushed: brief and direct. Curious: thoughtful and detailed. Casual: relaxed and witty. Always friendly and sharp, and keep the same tone across the conversation until their mood changes. Occasionally (about one reply in five) call the user “boss” or “sir”, never after a comma.
+DEPTH: Match length to the question. Casual chat and simple commands: 1-2 sentences. Real questions, analysis, explanations, code and debugging: a complete, expert, well-structured answer of whatever length is needed (up to about 600 words). For code, write correct runnable code in fenced code blocks with the language name, explain the key idea briefly, and mention edge cases. For debugging, find the root cause, show the fix and say why it failed. For images, describe what matters and answer the user’s actual question about it. MATH: never use LaTeX or dollar signs; write math in plain text with Unicode symbols such as a₂, n², ×, ÷, √, π, ≤ and simple fractions like 3/4.
+ACCURACY: Reason carefully before answering. For riddles and puzzles read the exact wording instead of recalling a similar famous version, and check your answer. Weigh both sides of ethical questions. Respect word limits exactly. If unsure, say so. Never claim to have done, sent, saved or prepared something you did not do in this reply. You cannot see the user’s contacts, numbers, files, screen or other apps; the app keeps contacts privately and looks numbers up itself. This does NOT stop you from messaging or calling: when the user asks to message, text, WhatsApp, call or email someone, ALWAYS return the matching action with the name exactly as said and let the app do the lookup; never refuse for that reason. If no app is named for a message, use whatsapp.
+OUTPUT: Answer ONLY with one JSON object (no markdown fences around the JSON itself; inside the reply value you may use fenced code blocks and **bold**): {"reply":"full text shown on screen","speech":"a spoken version of 1-2 short sentences (omit if reply is already that short)","action":"none|youtube|search|weather|maps|news|whatsapp|sms|email|call|openapp|alarm|timer","query":"song, search text, city or place","name":"contact name as the user said it, never a number","message":"text to send","to":"email address or contact name","subject":"email subject","app":"app name","hour":0,"minute":0,"seconds":0} (include only the fields that apply). Use youtube when asked to play a song or video (query = song and artist). Use search to look something up on the web. Use weather for weather (query = city; if no city is known, ask which city and use action none). Use maps for places or directions. Use news for headlines (query = topic, may be empty). Use whatsapp or sms to message a person (name, message). Use email (to, subject, message). Use call (name). Use openapp (app). Use alarm (hour in 24-hour time, minute, optional message) and timer (seconds). Never invent phone numbers or email addresses. The user always taps send themselves, so say you are preparing it, never that it was sent. Otherwise action none. You cannot fetch live data yourself, so for weather, news and web results say you are opening it for them. Use the date and time given below for time questions.`;
+const U=encodeURIComponent;
+const ACT={
+ youtube:q=>['Play on YouTube','https://www.youtube.com/results?search_query='+U(q)],
+ search:q=>['Search the web','https://www.google.com/search?q='+U(q)],
+ weather:q=>['Open weather','https://www.google.com/search?q='+U('weather '+q)],
+ maps:q=>['Open maps','https://www.google.com/maps/search/?api=1&query='+U(q)],
+ news:q=>['Open news','https://news.google.com/search?q='+U(q||'top news')]
+};
+const APPS={whatsapp:'com.whatsapp',youtube:'com.google.android.youtube',instagram:'com.instagram.android',maps:'com.google.android.apps.maps',gmail:'com.google.android.gm',chrome:'com.android.chrome',facebook:'com.facebook.katana',spotify:'com.spotify.music',telegram:'org.telegram.messenger',snapchat:'com.snapchat.android',twitter:'com.twitter.android',x:'com.twitter.android',phonepe:'com.phonepe.app',gpay:'com.google.android.apps.nbu.paisa.user','google pay':'com.google.android.apps.nbu.paisa.user',paytm:'net.one97.paytm',amazon:'in.amazon.mShop.android.shopping',netflix:'com.netflix.mediaclient',photos:'com.google.android.apps.photos',calendar:'com.google.android.calendar',settings:'com.android.settings'};
+function contacts(){let t='';try{t=localStorage.getItem('jcon')||''}catch(e){}const m={};t.split('\n').forEach(l=>{const i=l.indexOf('=');if(i>0)m[l.slice(0,i).trim().toLowerCase()]=l.slice(i+1).trim()});return m}
+function findC(C,nm){
+ if(!nm)return null;const k=Object.keys(C);
+ if(C[nm]!==undefined)return{v:C[nm]};
+ let m=k.filter(x=>x.replace(/\s*\(.*?\)\s*/g,' ').trim()===nm);
+ if(!m.length)m=k.filter(x=>x.startsWith(nm));
+ if(!m.length)m=k.filter(x=>x.includes(nm));
+ if(m.length===1)return{v:C[m[0]]};
+ if(m.length>1)return{amb:m};
+ return null;
+}
+function PH(o){
+ const a=o.action,C=contacts(),nm=String(o.name||'').toLowerCase().trim(),msg=o.message||o.body||'';
+ if(a==='whatsapp'||a==='sms'||a==='call'){
+  const f=findC(C,nm);
+  if(f&&f.amb)return{err:'Which one: '+f.amb.map(x=>x.replace(/\b\w/g,c=>c.toUpperCase())).join(', ')+'?'};
+  const v=f&&f.v;
+  if(!v||/@/.test(v))return{err:'I don’t have a number saved for “'+(o.name||'that contact')+'”. Add it under the gear, Contacts, with the country code.'};
+  const n=v.replace(/[^\d]/g,'');
+  if(a==='whatsapp')return{label:'Open WhatsApp chat',detail:o.name+(msg?' – “'+msg+'”':''),url:'https://wa.me/'+n+(msg?'?text='+U(msg):'')};
+  if(a==='sms')return{label:'Open text message',detail:o.name+(msg?' – “'+msg+'”':''),url:'sms:+'+n+(msg?'?body='+U(msg):'')};
+  return{label:'Call',detail:o.name,url:'tel:+'+n};
+ }
+ if(a==='email'){
+  let to=String(o.to||o.name||'').trim();const k=to.toLowerCase();const f=findC(C,k);if(f&&f.v)to=f.v;
+  if(!/^[^\s@]+@[^\s@]+$/.test(to))return{err:'I need an email address for that. Add it under the gear, Contacts, like Boss=boss@example.com.'};
+  return{label:'Open email draft',detail:to+(o.subject?' – '+o.subject:''),url:'mailto:'+to+'?subject='+U(o.subject||'')+'&body='+U(msg)};
+ }
+ if(a==='openapp'){
+  const k=String(o.app||o.query||'').toLowerCase().trim(),pk=APPS[k];
+  if(!pk)return{err:'I don’t know how to open “'+k+'” yet. Ask me to add it to the app list.'};
+  return{label:'Open '+k,detail:'',url:'intent:#Intent;action=android.intent.action.MAIN;category=android.intent.category.LAUNCHER;package='+pk+';S.browser_fallback_url='+U('https://play.google.com/store/apps/details?id='+pk)+';end'};
+ }
+ if(a==='alarm'){
+  const h=+o.hour,m=+o.minute||0;
+  if(!(h>=0&&h<=23)||!(m>=0&&m<=59))return{err:'Tell me the alarm time, for example “wake me at 6:30”.'};
+  return{label:'Set alarm',detail:String(h).padStart(2,'0')+':'+String(m).padStart(2,'0'),url:'intent:#Intent;action=android.intent.action.SET_ALARM;i.android.intent.extra.alarm.HOUR='+h+';i.android.intent.extra.alarm.MINUTES='+m+';S.android.intent.extra.alarm.MESSAGE='+U(msg||'JARWIS')+';end'};
+ }
+ if(a==='timer'){
+  const sec=Math.round(+o.seconds);
+  if(!(sec>0))return{err:'Tell me how long the timer should run.'};
+  return{label:'Start timer',detail:Math.floor(sec/60)+' min '+(sec%60)+' s',url:'intent:#Intent;action=android.intent.action.SET_TIMER;i.android.intent.extra.alarm.LENGTH='+sec+';end'};
+ }
+ return null;
+}
+function mth(t){
+ const SB={'0':'₀','1':'₁','2':'₂','3':'₃','4':'₄','5':'₅','6':'₆','7':'₇','8':'₈','9':'₉','+':'₊','-':'₋','=':'₌','(':'₍',')':'₎',a:'ₐ',e:'ₑ',h:'ₕ',i:'ᵢ',j:'ⱼ',k:'ₖ',l:'ₗ',m:'ₘ',n:'ₙ',o:'ₒ',p:'ₚ',r:'ᵣ',s:'ₛ',t:'ₜ',u:'ᵤ',v:'ᵥ',x:'ₓ'};
+ const SP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','+':'⁺','-':'⁻','=':'⁼','(':'⁽',')':'⁾',n:'ⁿ',i:'ⁱ'};
+ const cv=(x,M,k)=>{const a=[...x];return a.every(c=>M[c])?a.map(c=>M[c]).join(''):k+(x.length>1?'('+x+')':x)};
+ return String(t).replace(/\$\$?(?=\S)([^$\n]+?)(?<=\S)\$\$?/g,(m,x)=>x
+  .replace(/\\left|\\right|\\,|\\;|\\!/g,'').replace(/\\(?:text|mathrm|mathbf)\{([^}]*)\}/g,'$1')
+  .replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g,'($1)/($2)').replace(/\\sqrt\{([^{}]*)\}/g,'√($1)')
+  .replace(/\\times/g,'×').replace(/\\cdot/g,'·').replace(/\\div/g,'÷').replace(/\\pi/g,'π').replace(/\\leq?/g,'≤').replace(/\\geq?/g,'≥').replace(/\\neq/g,'≠').replace(/\\approx/g,'≈').replace(/\\pm/g,'±').replace(/\\infty/g,'∞').replace(/\\theta/g,'θ').replace(/\\alpha/g,'α').replace(/\\beta/g,'β').replace(/\\Rightarrow|\\to/g,'→')
+  .replace(/_\{([^{}]*)\}|_(\w)/g,(q,a,b)=>cv(a||b,SB,'_')).replace(/\^\{([^{}]*)\}|\^(\w)/g,(q,a,b)=>cv(a||b,SP,'^'))
+  .replace(/[{}]/g,''));
+}
+function fmt(p,t){
+ p.textContent='';
+ String(t).split(/```/).forEach((seg,i)=>{
+  if(i%2){
+   const nl=seg.indexOf('\n'),code=(nl>-1&&nl<24?seg.slice(nl+1):seg).replace(/\n$/,'');
+   const w=document.createElement('div');w.className='cb';
+   const b=document.createElement('button');b.textContent='COPY';
+   b.onclick=()=>{if(navigator.clipboard)navigator.clipboard.writeText(code).then(()=>{b.textContent='COPIED';setTimeout(()=>{b.textContent='COPY'},1500)})};
+   const pre=document.createElement('pre');pre.textContent=code;w.append(b,pre);p.append(w);
+  }else if(seg.trim()){
+   const d=document.createElement('div');
+   mth(seg).trim().split(/\*\*/).forEach((x,j)=>{if(!x)return;if(j%2){const b=document.createElement('strong');b.textContent=x;d.append(b)}else d.append(document.createTextNode(x))});
+   p.append(d);
+  }
+ });
+}
+let IMG=null;
+$('#im').onchange=e=>{
+ const f=e.target.files[0];e.target.value='';if(!f)return;
+ const r=new FileReader();
+ r.onload=()=>{const i=new Image();
+  i.onload=()=>{
+   const k=Math.min(1,1280/Math.max(i.width,i.height)),c=document.createElement('canvas');
+   c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);c.getContext('2d').drawImage(i,0,0,c.width,c.height);
+   const u=c.toDataURL('image/jpeg',.85);IMG={mime:'image/jpeg',data:u.split(',')[1]};
+   const d=add('u',''),p=d.querySelector('p'),t=document.createElement('img');
+   t.src=u;t.alt='Attached image';t.style.cssText='max-width:100%;max-height:160px;border-radius:4px;display:block';p.append(t);
+   toast('Image attached. Now ask your question.');
+  };
+  i.onerror=()=>toast('Could not read that image.');i.src=r.result};
+ r.readAsDataURL(f);
+};
+function setS(s,t){app.dataset.s=s;$('#st').textContent=t}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove('show'),3200)}
+function add(w,t){const d=document.createElement('div');d.className='m '+w;const b=document.createElement('b');b.textContent=w==='u'?'YOU':'JARWIS';const p=document.createElement('p');p.textContent=t;d.append(b,p);log.append(d);log.scrollTop=log.scrollHeight;return d}
+function tick(){const n=new Date();$('#clk').textContent=n.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});$('#dt').textContent=n.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'})}
+tick();setInterval(tick,1000);
+function vbtn(){vo.classList.toggle('off',!voiceOn);vo.textContent=voiceOn?'VOICE':'MUTE'}
+vbtn();
+vo.onclick=()=>{voiceOn=!voiceOn;vbtn();if(!voiceOn&&window.speechSynthesis)speechSynthesis.cancel();try{localStorage.setItem('jv',voiceOn?'1':'0')}catch(e){}};
+let vi=-1;try{vi=+(localStorage.getItem('jvi')||-1)}catch(e){}
+let pt=.4;try{pt=+(localStorage.getItem('jpt')||.4)}catch(e){}
+const PR=[['Jarvis','m',.3,.9],['Atlas','m',.6,1],['Edith','m',.5,1.1],['Friday','m',.8,1],['Nova','m',.4,1.05]];
+let PI=0;try{PI=(+localStorage.getItem('jpr')||0)%5}catch(e){}
+function preset(){
+ const all=vlist(),M=/daniel|david|george|james|ryan|alex|guy|mark|\bmale|rjs|gbd|gbb|iol|iom|tpd/i,F=/female|zira|samantha|hazel|susan|fiona|karen|victoria|aria|jenny|gba|gbc|gbg|fis|iog|tpc|tpf|sfg/i;
+ const p=PR[PI],isF=p[1]==='f';
+ let c=all.filter(v=>isF?F.test(v.name):(M.test(v.name)&&!F.test(v.name)));
+ if(!c.length)c=all;
+ const n=PR.slice(0,PI).filter(q=>q[1]===p[1]).length;
+ return{v:c.length?c[n%c.length]:null,p:p[2],r:p[3]};
+}
+function nextPitch(){
+ if(!window.speechSynthesis)return;
+ const S=[.8,.6,.4,.25,.1];pt=S[(S.indexOf(pt)+1)%S.length];
+ try{localStorage.setItem('jpt',pt)}catch(e){}
+ toast('Pitch '+pt+(pt===.1?' (deepest)':''));voiceOn=true;vbtn();speak('This is my deeper voice.');
+}
+function vlist(){
+ const M=/daniel|david|george|james|ryan|alex|guy|mark|\bmale|rjs|gbd|gbb|iol|iom|tpd/i,F=/female|zira|samantha|hazel|susan|fiona|karen|victoria|aria|jenny|gba|gbc|gbg|fis|iog|tpc|tpf|sfg/i;
+ return speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)).map(v=>({v,s:(/en[-_]GB/i.test(v.lang)?3:/en[-_]IN/i.test(v.lang)?1:0)+(M.test(v.name)?5:0)-(F.test(v.name)?6:0)})).sort((a,b)=>b.s-a.s).map(o=>o.v);
+}
+function nextVoice(){
+ if(!window.speechSynthesis)return;
+ const L=vlist();
+ if(!L.length){toast('Voices are still loading. Try again in a moment.');return}
+ PI=(PI+1)%PR.length;try{localStorage.setItem('jpr',PI)}catch(e){}
+ toast('Voice '+(PI+1)+' of 5: '+PR[PI][0]+(PR[PI][1]==='m'?' (male)':' (female)'));
+ voiceOn=true;vbtn();speak('I am '+PR[PI][0]+'. How can I help?');
+}
+function speak(t){
+ if(!voiceOn||!window.speechSynthesis){setS('idle','STANDBY');return}
+ speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(mth(t).replace(/,\s*(boss|sir)\b/gi,' $1')),L=vlist();
+ const P=preset();u.voice=P.v;
+ u.pitch=P.p;u.rate=P.r;
+ u.onstart=()=>setS('speak','SPEAKING');
+ u.onend=u.onerror=()=>setS('idle','STANDBY');
+ speechSynthesis.speak(u);
+}
+function parse(t){try{const a=t.indexOf('{'),b=t.lastIndexOf('}');return JSON.parse(t.slice(a,b+1))}catch(e){return{reply:String(t).replace(/[{}"]/g,''),action:'none'}}}
+function localAns(t){
+ const n=t.toLowerCase().replace(/['’]/g,'').replace(/[^a-z0-9 ]+/g,' ').replace(/\s+/g,' ').trim();
+ if(/^(show |list |display |what are |who are )?(me )?(all )?(my |the )?(saved )?contacts( list| saved)?$/.test(n)){const k=Object.keys(contacts());return k.length?'Saved contacts: '+k.map(x=>x.replace(/\b\w/g,c=>c.toUpperCase())).join(', ')+'.':'No contacts saved yet. Add them under the gear, Contacts.'}
+ if(!/^(hey jarwis |please )?(what ?(is |s )?|tell me |show me )?(the |todays |current )*(time|date|day)( and (the )?(time|date|day))?( is it| now| today| right now| please)*$/.test(n))return null;
+ const d=new Date(),tm=d.toLocaleTimeString('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}),dt=d.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+ const a=/time/.test(n),b=/date|day/.test(n);
+ const B=Math.random()<.5?(Math.random()<.7?' boss':' sir'):'';
+ return a&&b?'It’s '+tm+' on '+dt+B+'.':a?'It’s '+tm+B+'.':'Today is '+dt+B+'.';
+}
+async function send(t){
+ t=(t||'').trim();if(!t&&IMG)t='Describe this image and tell me what matters.';if(!t||busy)return;
+ inp.value='';if(window.speechSynthesis)speechSynthesis.cancel();
+ add('u',t);hist.push({r:'u',t:t+(IMG?' [image attached]':'')});app.classList.add('chat');
+ const L=localAns(t);if(L){add('j',L);hist.push({r:'j',t:/^(Saved contacts|No contacts)/.test(L)?'(contact list shown on screen)':L});speak(L);return}
+ busy=true;setS('think','PROCESSING');
+ const th=add('j','…');th.classList.add('th');
+ try{
+  if(!cfg().key)throw{code:'nokey'};
+  const now=new Date().toLocaleString('en-IN',{dateStyle:'full',timeStyle:'short'});
+  const prompt=SYS+'\n\nCurrent local date and time: '+now+'\n\nConversation:\n'+hist.slice(-6).map(h=>(h.r==='u'?'User: ':'JARWIS: ')+h.t).join('\n')+'\n\nJSON reply:';
+  const im=IMG;IMG=null;const txt=await gem(prompt,im);
+  const o=parse(txt);let reply=o.reply||'Done.';
+  if(o.action==='weather'&&o.query){th.querySelector('p').textContent=reply;try{reply=await getWeather(o.query)}catch(e){reply='I couldn’t reach the weather service. Check your connection.'}}
+  th.classList.remove('th');fmt(th.querySelector('p'),reply);
+  hist.push({r:'j',t:reply});
+  speak(o.action==='weather'?reply:(o.speech||(/```/.test(reply)||reply.length>500?'The full answer is on screen.':reply)));
+  const x=PH(o);
+  if(x&&x.err)add('j',x.err);
+  const a=(x&&!x.err)?()=>[x.label,x.url]:(o.action==='weather'?null:ACT[o.action]);
+  if(a){
+   const [label,url]=a(o.query||'');
+   const c=document.createElement('div');c.className='act';
+   const p=document.createElement('p');p.textContent=label+(x&&x.detail?': '+x.detail:(o.query?': “'+o.query+'”':''))+' – shall I go ahead?';
+   const row=document.createElement('div');
+   const go=document.createElement('a');go.href=url;if(/^https?:/.test(url)){go.target='_blank';go.rel='noopener noreferrer'}go.textContent='OPEN';
+   const no=document.createElement('button');no.textContent='CANCEL';no.onclick=()=>c.remove();
+   go.onclick=()=>setTimeout(()=>c.remove(),400);
+   row.append(go,no);c.append(p,row);log.append(c);log.scrollTop=log.scrollHeight;
+  }
+ }catch(e){
+  th.classList.remove('th');
+  const m=e&&e.code==='nokey'?'Add your API key first. Tap the gear icon at the top.':e&&e.msg?e.msg:'Connection fault. Check your internet and try again.';
+  th.querySelector('p').textContent=m;setS('idle','STANDBY');
+ }
+ busy=false;if(app.dataset.s==='think')setS('idle','STANDBY');
+}
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+mb.onclick=()=>{
+ if(!SR){toast('Voice input is not supported here. Use text instead.');return}
+ if(listening){rec.stop();return}
+ if(window.speechSynthesis)speechSynthesis.cancel();
+ rec=new SR();rec.lang='en-IN';rec.interimResults=true;rec.continuous=false;
+ let fin='';
+ rec.onstart=()=>{listening=true;mb.classList.add('on');setS('listen','LISTENING')};
+ rec.onresult=e=>{let s='';for(const r of e.results)s+=r[0].transcript;inp.value=s;fin=s};
+ rec.onerror=e=>toast(e.error==='not-allowed'||e.error==='service-not-allowed'?'Microphone is blocked here. Tap the text box and use your keyboard’s mic key to dictate.':'I didn’t catch that. Tap the mic and try again.');
+ rec.onend=()=>{listening=false;mb.classList.remove('on');if(!busy)setS('idle','STANDBY');if(fin.trim())send(fin)};
+ try{rec.start()}catch(e){}
+};
+$('#go').onclick=()=>send(inp.value);
+inp.onkeydown=e=>{if(e.key==='Enter')send(inp.value)};
+$('#chips').onclick=e=>{const c=e.target.closest('button');if(!c)return;if(c.dataset.i){$('#im').click();return}if(c.dataset.v){nextVoice();return}if(c.dataset.p){nextPitch();return}if(c.dataset.s)send(c.dataset.s);else{inp.value=c.dataset.f;inp.focus()}};
+(function(){
+ if(typeof THREE==='undefined')return;
+ const cv=$('#rx');let R;
+ try{R=new THREE.WebGLRenderer({canvas:cv,alpha:true,antialias:true})}catch(e){return}
+ R.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+ const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(40,1,.1,50);cam.position.set(0,0,9.5);
+ const root=new THREE.Group();sc.add(root);
+ const col=new THREE.Color(0x27e6ff),tgt=new THREE.Color(),mats=[];
+ const GL=()=>{const m=new THREE.MeshBasicMaterial({color:0x27e6ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});mats.push(m);return m};
+ const steel=new THREE.MeshStandardMaterial({color:0x5a6475,metalness:.8,roughness:.3});
+ const copper=new THREE.MeshStandardMaterial({color:0xb8741a,metalness:.85,roughness:.38});
+ sc.add(new THREE.AmbientLight(0x8aa4c8,1.2));
+ const dl=new THREE.DirectionalLight(0xffffff,.9);dl.position.set(3,4,6);sc.add(dl);
+ const light=new THREE.PointLight(0x27e6ff,2.2,14);light.position.set(0,0,1.4);sc.add(light);
+ const hous=new THREE.Mesh(new THREE.TorusGeometry(2.7,.3,24,96),steel);root.add(hous);
+ root.add(new THREE.Mesh(new THREE.TorusGeometry(2.98,.035,8,96),GL()));
+ root.add(new THREE.Mesh(new THREE.TorusGeometry(2.4,.03,8,96),GL()));
+ for(let i=0;i<10;i++){
+  const a=i/10*Math.PI*2,g=new THREE.Group();
+  g.position.set(Math.cos(a)*1.85,Math.sin(a)*1.85,0);g.rotation.z=a;
+  g.add(new THREE.Mesh(new THREE.BoxGeometry(.62,.78,.5),copper));
+  const s=new THREE.Mesh(new THREE.BoxGeometry(.04,.6,.52),GL());s.position.x=-.32;g.add(s);
+  root.add(g);
+ }
+ const ringA=new THREE.Group(),ringB=new THREE.Group();root.add(ringA,ringB);
+ for(let i=0;i<24;i++){
+  const a=i/24*Math.PI*2,b=new THREE.Mesh(new THREE.BoxGeometry(.18,.06,.06),GL());
+  b.position.set(Math.cos(a)*1.2,Math.sin(a)*1.2,.1);b.rotation.z=a+Math.PI/2;ringA.add(b);
+ }
+ ringB.add(new THREE.Mesh(new THREE.TorusGeometry(.95,.035,8,64),GL()));
+ const t1=new THREE.Mesh(new THREE.TorusGeometry(.7,.045,8,3),GL()),t2=new THREE.Mesh(new THREE.TorusGeometry(.7,.045,8,3),GL());
+ t2.rotation.z=Math.PI;t1.position.z=t2.position.z=.15;root.add(t1,t2);
+ const core=new THREE.Mesh(new THREE.SphereGeometry(.42,32,32),new THREE.MeshBasicMaterial({color:0xffffff}));core.position.z=.2;root.add(core);
+ const c2=document.createElement('canvas');c2.width=c2.height=128;
+ const x=c2.getContext('2d'),gr=x.createRadialGradient(64,64,0,64,64,64);
+ gr.addColorStop(0,'rgba(255,255,255,1)');gr.addColorStop(.25,'rgba(255,255,255,.55)');gr.addColorStop(1,'rgba(255,255,255,0)');
+ x.fillStyle=gr;x.fillRect(0,0,128,128);
+ const halo=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c2),color:0x27e6ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false}));
+ halo.position.z=.5;root.add(halo);mats.push(halo.material);
+ const N=180,pos=new Float32Array(N*3);
+ for(let i=0;i<N;i++){const a=Math.random()*Math.PI*2,r=3.3+Math.random()*1.5;pos[i*3]=Math.cos(a)*r;pos[i*3+1]=Math.sin(a)*r;pos[i*3+2]=(Math.random()-.5)*2.2}
+ const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+ const pm=new THREE.PointsMaterial({size:.08,color:0x27e6ff,transparent:true,blending:THREE.AdditiveBlending,depthWrite:false});mats.push(pm);
+ const pts=new THREE.Points(pg,pm);root.add(pts);
+ let tx=0,ty=0,drag=false,px=0,py=0,sp=1,last=performance.now();
+ cv.onpointerdown=e=>{drag=true;px=e.clientX;py=e.clientY;try{cv.setPointerCapture(e.pointerId)}catch(_){}};
+ cv.onpointermove=e=>{if(!drag)return;ty+=(e.clientX-px)*.012;tx+=(e.clientY-py)*.012;px=e.clientX;py=e.clientY};
+ cv.onpointerup=cv.onpointercancel=()=>{drag=false};
+ function size(){const w=cv.clientWidth||200;R.setSize(w,w,false)}
+ size();window.addEventListener('resize',size);if(window.ResizeObserver)new ResizeObserver(size).observe(cv);
+ const COL={idle:0x27e6ff,listen:0xffb81c,think:0xff2d3d,speak:0x27e6ff},SPD={idle:1,listen:2.2,think:4.5,speak:1.7};
+ function loop(now){
+  const dt=Math.min((now-last)/1000,.1),t=now/1000,s=app.dataset.s||'idle';last=now;
+  tgt.setHex(COL[s]||COL.idle);col.lerp(tgt,.08);
+  mats.forEach(m=>m.color.copy(col));light.color.copy(col);
+  sp+=((SPD[s]||1)-sp)*.05;
+  ringA.rotation.z+=dt*sp*.8;ringB.rotation.z-=dt*sp*1.3;t1.rotation.z+=dt*sp*.6;t2.rotation.z-=dt*sp*.9;pts.rotation.z+=dt*.12*sp;
+  const pul=1+Math.sin(t*(2+sp))*.07*(s==='idle'?1:2);
+  core.scale.setScalar(pul);halo.scale.set(6*pul,6*pul,1);light.intensity=2.2*pul;
+  if(!drag){tx*=.95;ty*=.95}
+  root.rotation.x=tx+Math.sin(t*.6)*.16;root.rotation.y=ty+Math.cos(t*.5)*.3;
+  R.render(sc,cam);requestAnimationFrame(loop);
+ }
+ requestAnimationFrame(loop);
+})();
+function cfg(){let c={};try{c=JSON.parse(localStorage.getItem('jcfg')||'{}')}catch(e){}const gk=c.gk||c.key||'',ok=c.ok||'',p=c.p==='or'?'or':'gemini';return{p,gk,ok,gm:c.gm||c.model||'',om:c.om||'',key:p==='or'?ok:gk}}
+function gem1(prompt,m,im){return cfg().p==='or'?gemO(prompt,m,im):gemG(prompt,m,im)}
+async function gemO(prompt,m,im){
+ const c=cfg();let r;
+ try{r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify({model:m,messages:[{role:'user',content:im?[{type:'text',text:prompt},{type:'image_url',image_url:{url:'data:'+im.mime+';base64,'+im.data}}]:prompt}],max_tokens:4000,temperature:.7})})}catch(e){throw{msg:'No connection. Check your internet and try again.'}}
+ const d=await r.json().catch(()=>({}));
+ if(!r.ok)throw{retry:r.status>=500||r.status===429,msg:r.status>=500?'The AI service is busy. Please try again in a moment.':r.status===429?'Free limit reached for now. Wait a minute and try again.':r.status===401?'OpenRouter rejected the key. Check it in Settings.':r.status===402?'This model needs credits on OpenRouter. Pick a model ending in :free.':r.status===404?'That model isn’t available. Change the model name in Settings.':'OpenRouter error '+r.status+'.'};
+ const ch=d.choices&&d.choices[0]&&d.choices[0].message;
+ return ch&&ch.content?ch.content:'';
+}
+async function gemG(prompt,m,im){
+ const c=cfg();let r;
+ try{r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+m+':generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':c.key},body:JSON.stringify({contents:[{role:'user',parts:im?[{text:prompt},{inline_data:{mime_type:im.mime,data:im.data}}]:[{text:prompt}]}],generationConfig:{temperature:.7,maxOutputTokens:6000,responseMimeType:'application/json'}})})}catch(e){throw{msg:'No connection. Check your internet and try again.'}}
+ const d=await r.json().catch(()=>({}));
+ if(!r.ok)throw{retry:r.status>=500||r.status===429,msg:r.status>=500?'Google’s servers are busy. Please try again in a moment.':r.status===429?'Rate limit reached. Wait a minute and try again.':(r.status===400||r.status===403)?'Gemini rejected the key. Check it in Settings.':r.status===404?'That model isn’t available. Change the model name in Settings.':'Gemini error '+r.status+'.'};
+ const p=d.candidates&&d.candidates[0]&&d.candidates[0].content&&d.candidates[0].content.parts;
+ return p?p.map(x=>x.text||'').join(''):'';
+}
+async function gem(prompt,im){
+ const c=cfg(),m=c.p==='or'?(c.om||'google/gemma-4-31b-it:free'):(c.gm||'gemini-flash-latest'),tries=c.p==='or'?[m,m]:[m,m,'gemini-flash-lite-latest'];let err;
+ for(let i=0;i<tries.length;i++){
+  try{return await gem1(prompt,tries[i],im)}catch(e){err=e;if(!e.retry)throw e;await new Promise(r=>setTimeout(r,1200*(i+1)))}
+ }
+ throw err;
+}
+function WC(c){return c===0?'clear':c<=3?'partly cloudy':c<=48?'foggy':c<=57?'drizzling':c<=67?'rainy':c<=77?'snowy':c<=82?'showery':c<=86?'snowy':'stormy'}
+async function getWeather(city){
+ const g=await(await fetch('https://geocoding-api.open-meteo.com/v1/search?count=1&name='+U(city))).json();
+ const p=g.results&&g.results[0];if(!p)return 'I couldn’t find a place called '+city+'.';
+ const w=await(await fetch('https://api.open-meteo.com/v1/forecast?latitude='+p.latitude+'&longitude='+p.longitude+'&current=temperature_2m,apparent_temperature,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1')).json();
+ const c=w.current,d=w.daily;
+ return 'In '+p.name+' it’s '+Math.round(c.temperature_2m)+'°C and '+WC(c.weather_code)+', feels like '+Math.round(c.apparent_temperature)+'°. Today’s range is '+Math.round(d.temperature_2m_min[0])+' to '+Math.round(d.temperature_2m_max[0])+'°C with a '+d.precipitation_probability_max[0]+'% chance of rain.';
+}
+const SE=$('#set');
+const DM={gemini:'gemini-flash-latest',or:'google/gemma-4-31b-it:free'};
+function fill(p,c){$('#pv').value=p;$('#k').value=(p==='or'?c.ok:c.gk)||'';$('#mo').value=(p==='or'?c.om:c.gm)||'';$('#mo').placeholder=DM[p];$('#kl').textContent=p==='or'?'OpenRouter API key':'Gemini API key'}
+let draft={};
+$('#gear').onclick=()=>{draft=Object.assign({},cfg());fill(draft.p,draft);try{$('#ct').value=localStorage.getItem('jcon')||''}catch(e){}SE.hidden=false};
+$('#pv').onchange=()=>{const o=draft.p;draft[o==='or'?'ok':'gk']=$('#k').value.trim();draft[o==='or'?'om':'gm']=$('#mo').value.trim();draft.p=$('#pv').value;fill(draft.p,draft)};
+$('#cl').onclick=()=>{SE.hidden=true};
+$('#sv').onclick=()=>{const p=$('#pv').value;draft[p==='or'?'ok':'gk']=$('#k').value.trim();draft[p==='or'?'om':'gm']=$('#mo').value.trim();try{localStorage.setItem('jcfg',JSON.stringify({p,gk:draft.gk||'',ok:draft.ok||'',gm:draft.gm||'',om:draft.om||''}))}catch(e){toast('Could not save on this browser.')}try{localStorage.setItem('jcon',$('#ct').value)}catch(e){}SE.hidden=true;toast('Saved')};
+setTimeout(()=>{if(!cfg().key)SE.hidden=false},2900);
+setTimeout(()=>{const b=$('#boot');b.style.opacity=0;setTimeout(()=>b.remove(),600);
+ const h=new Date().getHours();
+ add('j','Good '+(h<12?'morning':h<17?'afternoon':'evening')+' boss. JARWIS is online. What can I do for you?');
+},2300);
+</script>
+</body>
+</html>
