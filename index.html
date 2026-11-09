@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>JARWIS</title>
-<script defer src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script defer src="vendor/three.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Michroma&family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#030409;--bg0:#030409;--bg1:#10082a;--pri:110,231,255;--sec:167,139,250;--acc:255,159,107;--hot:244,114,182;--bgc:24,20,52;--panel:rgba(12,10,32,.6);--line:rgba(140,130,255,.28);--cyan:#6ee7ff;--cyan2:#cfd6ff;--s:#a78bfa;--amber:#ff9f6b;--green:#5eead4;--txt:#e8eaff;--dim:#9aa0cc;--disp:'Michroma','Space Grotesk',sans-serif;--sans:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',ui-monospace,monospace}
@@ -175,6 +175,8 @@ main,.dock,.chips,#chat{min-width:0;max-width:100%}.app{overflow:hidden}
 .code{display:flex;font:13px/1.6 var(--mono);min-width:max-content}.gut{padding:12px 10px;text-align:right;color:var(--dim);user-select:none;border-right:1px solid var(--line);white-space:pre;position:sticky;left:0;background:#05050e}.src{padding:12px 14px;white-space:pre;tab-size:4}
 .tc{color:#6b7194;font-style:italic}.ts{color:#7ee787}.tn{color:#ffa657}.tk{color:var(--cyan)}.tg{color:#ff7b9c}
 @media(max-width:900px){#apanel{width:100vw;top:5vh;border-left:0;border-top:1px solid var(--ac);border-radius:18px 18px 0 0;transform:translateY(105%)}#apanel.show{transform:none}.apa .abtn{padding:0 9px}}
+#plclr{font:500 11px var(--mono);color:var(--cyan);background:rgba(var(--pri),.08);border:1px solid var(--line);padding:5px 10px;cursor:pointer}
+.pl{display:flex;gap:10px;padding:8px 0;border-top:1px solid rgba(var(--sec),.14);font-size:14px}.pl b{font:500 12px var(--mono);color:var(--cyan);flex:none;width:96px}.pl.travel b{color:var(--amber)}.pl.fixed b{color:var(--cyan2)}#plan{max-height:220px;overflow:auto}
 </style>
 </head>
 <body>
@@ -185,7 +187,7 @@ main,.dock,.chips,#chat{min-width:0;max-width:100%}.app{overflow:hidden}
 <div class="app" id="app">
 <header>
   <div class="hr"><button class="ibtn" id="menu" aria-label="Recent chats">☰</button>
-  <div><h1>JARWIS</h1><div class="sub">PERSONAL INTELLIGENCE · MK XI</div></div></div>
+  <div><h1>JARWIS</h1><div class="sub">PERSONAL INTELLIGENCE · MK XII</div></div></div>
   <div class="pill" id="pill"><span class="dot"></span><span id="pilltxt">ALL SYSTEMS NOMINAL</span></div>
   <div class="hr"><button class="ibtn" id="spk" aria-label="Toggle voice">🔊</button><button class="ibtn" id="gear" aria-label="Settings">⚙</button></div>
 </header>
@@ -201,6 +203,7 @@ main,.dock,.chips,#chat{min-width:0;max-width:100%}.app{overflow:hidden}
     <div class="row"><span>UPLINK</span><b id="net">–</b></div>
     <div class="row"><span>POWER</span><b id="pow">–</b></div>
     <div class="row"><span>VOICE</span><b id="vst">–</b></div><div class="row"><span>ALARM</span><b id="alm">NONE</b></div><div class="row"><span>UPTIME</span><b id="up">00:00:00</b></div></div>
+  <div class="card tilt"><div class="lbl">TODAY PLAN <button id="plclr">CLEAR</button></div><div id="plan"></div></div>
   <div class="card tilt"><div class="lbl">TO-DO</div><div id="todo"></div></div>
   <div class="card recent"><div class="lbl">RECENT CHATS <button id="newchat">+ NEW</button></div>
     <div id="list"></div></div>
@@ -235,6 +238,7 @@ main,.dock,.chips,#chat{min-width:0;max-width:100%}.app{overflow:hidden}
 <label>ELEVENLABS VOICE ID (PASTE A CLONED VOICE ID)</label><input type="text" id="elvoice" placeholder="JBFqnCBsd6RMkjVDRZzb">
 <label>ELEVENLABS MODEL</label><select id="elmodel"><option value="eleven_flash_v2_5">Flash v2.5 · fastest</option><option value="eleven_turbo_v2_5">Turbo v2.5 · balanced</option><option value="eleven_multilingual_v2">Multilingual v2 · richest</option></select>
 <div class="tg"><input type="checkbox" id="barge"><span>Let me interrupt JARWIS (use headphones)</span></div>
+<div class="tg"><input type="checkbox" id="priv"><span>Private mode: nothing is sent to AI</span></div>
 <label>BACKUP VOICE (GEMINI)</label><select id="voice"><option value="Charon">Charon · deep, composed</option><option value="Orus">Orus · firm</option><option value="Algenib">Algenib · gravelly</option><option value="Achird">Achird · friendly</option><option value="Puck">Puck · upbeat</option><option value="Kore">Kore · clear (female)</option><option value="Aoede">Aoede · breezy (female)</option></select><div class="tg"><input type="checkbox" id="tts"><span>Speak replies aloud</span></div>
   <div class="btns"><button id="test">TEST VOICE</button><button id="cancel">CANCEL</button><button class="pri" id="save">SAVE</button></div>
 </div></div>
@@ -242,7 +246,7 @@ main,.dock,.chips,#chat{min-width:0;max-width:100%}.app{overflow:hidden}
 <script>
 const $=id=>document.getElementById(id);
 const store={get(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
-let cfg=Object.assign({key:'',model:'gemini-flash-latest',tts:true,voice:'Charon',theme:'nebula',vmodel:'gemini-2.5-flash-preview-tts',motion:'full',haptics:true,elkey:'',elvoice:'JBFqnCBsd6RMkjVDRZzb',elmodel:'eleven_flash_v2_5',barge:false},store.get('jw.cfg',{}));
+let cfg=Object.assign({key:'',model:'gemini-flash-latest',tts:true,voice:'Charon',theme:'nebula',vmodel:'gemini-2.5-flash-preview-tts',motion:'full',haptics:true,elkey:'',elvoice:'JBFqnCBsd6RMkjVDRZzb',elmodel:'eleven_flash_v2_5',barge:false,priv:false},store.get('jw.cfg',{}));
 if(!store.get('jw.v9',0)){cfg.tts=true;cfg.voice=cfg.voice||'Charon';store.set('jw.v9',1);store.set('jw.cfg',cfg)}
 let chats=store.get('jw.chats',[]),cur=null,busy=false;
 const save=()=>store.set('jw.chats',chats);
@@ -358,7 +362,7 @@ $('zone').textContent=Intl.DateTimeFormat().resolvedOptions().timeZone;
 setInterval(tick,1000);tick();
 if(navigator.getBattery)navigator.getBattery().then(b=>{const f=()=>$('pow').textContent=Math.round(b.level*100)+'%';f();b.onlevelchange=f}).catch(()=>{});else $('pow').textContent='AC';
 function status(){const ok=!!cfg.key;$('core').textContent=ok?'GEMINI · ONLINE':'GEMINI · NO KEY';$('core').className=ok?'ok':'am';
-$('model').textContent=cfg.model.toUpperCase();$('pill').className='pill'+(ok?'':' warn');$('pilltxt').textContent=ok?'ALL SYSTEMS NOMINAL':'API KEY REQUIRED';if($('vst'))$('vst').textContent=cfg.tts?(cfg.elkey?'ELEVENLABS':cfg.key?'GEMINI':'DEVICE'):'MUTED'}
+$('model').textContent=cfg.model.toUpperCase();$('pill').className='pill'+(ok?'':' warn');$('pilltxt').textContent=cfg.priv?'PRIVATE · LOCAL ONLY':ok?'ALL SYSTEMS NOMINAL':'API KEY REQUIRED';if($('vst'))$('vst').textContent=cfg.tts?(cfg.elkey?'ELEVENLABS':cfg.key?'GEMINI':'DEVICE'):'MUTED'}
 status();
 
 /* 3D tilt */
@@ -433,14 +437,47 @@ function find(name){const q=(name||'').toLowerCase().trim(),L=contacts(),b=x=>x.
 for(const f of[x=>x.n.toLowerCase()===q,x=>b(x)===q,x=>b(x).startsWith(q)||x.n.toLowerCase().startsWith(q),x=>x.n.toLowerCase().includes(q)]){const r=q?L.filter(f):[];if(r.length===1)return{c:r[0]};if(r.length>1)return{many:r.map(x=>x.n)}}return{}}
 const dg=v=>{let d=v.replace(/\D/g,'');if(d.length===10)d='91'+d;return d};
 const timers=[];let rb=0,rt=0,rl='';
-function addTimer(ms,label){try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}const t={at:Date.now()+ms,label};t.id=setTimeout(()=>ring(t),ms);timers.push(t)}
+function addTimer(ms,label){try{if(window.Notification&&Notification.permission==='default')Notification.requestPermission()}catch(e){}const t={at:Date.now()+ms,label};t.id=setTimeout(()=>ring(t),ms);timers.push(t);nNote(t.at,'JARWIS',label)}
 function ring(t){const k=timers.indexOf(t);if(k>=0)timers.splice(k,1);rl=t.label;$('ringl').textContent=t.label;$('ring').classList.add('show');if(navigator.vibrate)navigator.vibrate([400,200,400,200,400]);try{new Notification('JARWIS',{body:t.label})}catch(e){}
 const beep=()=>{try{const a=ctxA(),o=a.createOscillator(),g=a.createGain();o.frequency.value=880;g.gain.value=.15;o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+.25)}catch(e){}};beep();rb=setInterval(beep,900);rt=setTimeout(stopRing,120000)}
 function stopRing(){clearInterval(rb);clearTimeout(rt);$('ring').classList.remove('show');if(navigator.vibrate)navigator.vibrate(0)}
 $('rdis').onclick=stopRing;$('rsnz').onclick=()=>{stopRing();addTimer(300000,rl)};
 
 /* actions: always behind a tap */
-const go=u=>{const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
+/* native layer (Android app) */
+const NAT=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());
+const LN=NAT?Capacitor.registerPlugin('LocalNotifications'):null,APPL=NAT?Capacitor.registerPlugin('AppLauncher'):null;let nid=Math.floor(Date.now()/1000)%900000;
+async function nNote(at,title,body){if(!NAT||at<=Date.now())return false;try{let p=await LN.checkPermissions();if(p.display!=='granted'){p=await LN.requestPermissions();if(p.display!=='granted'){toast('Allow notifications to get reminders.');return false}}
+await LN.createChannel({id:'jarwis',name:'JARWIS reminders',importance:5,vibration:true,visibility:1});
+await LN.schedule({notifications:[{id:++nid,title,body,channelId:'jarwis',schedule:{at:new Date(at),allowWhileIdle:true}}]});return true}catch(e){return false}}
+const go=u=>{if(NAT&&APPL){APPL.openUrl({url:u}).catch(()=>toast('Could not open that app.'));return}const a=document.createElement('a');a.href=u;a.target='_blank';a.rel='noopener';document.body.appendChild(a);a.click();a.remove()};
+/* smart planner: runs only on the phone */
+const tmin=s=>{const m=/^\s*(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\s*$/i.exec(s||'');if(!m)return null;let h=+m[1];const ap=(m[3]||'').toLowerCase();if(ap==='pm'&&h<12)h+=12;if(ap==='am'&&h===12)h=0;return h*60+(+m[2]||0)};
+const mt=n=>p2(Math.floor(n/60)%24)+':'+p2(n%60);
+function buildPlan(P,nowMin){const B=10,bl=[],out=[],warn=[];
+(P.fixed||[]).forEach(e=>{const a=tmin(e.start);if(a==null)return;let b=tmin(e.end);if(b==null||b<=a)b=a+60;const x={t:e.title,s:a,e:b,k:'fixed'};bl.push(x);out.push(x)});
+(P.travel||[]).forEach(e=>{const at=tmin(e.at),lead=+e.lead||60;if(at==null)return;const x={t:'Leave for '+e.title,s:at-lead,e:at,k:'travel'};bl.push(x);out.push(x);out.push({t:e.title,s:at,e:at,k:'event'})});
+const tasks=(P.tasks||[]).map(x=>({t:x.title,d:Math.max(5,+x.minutes||30),by:tmin(x.by)})).sort((a,b)=>(a.by==null?1440:a.by)-(b.by==null?1440:b.by));
+for(const k of tasks){let st=nowMin,ok=false;const lim=k.by==null?1380:k.by;
+while(st+k.d<=lim){const c=bl.filter(b=>b.s-B<st+k.d&&b.e+B>st).sort((a,b)=>b.e-a.e)[0];if(!c){const x={t:k.t,s:st,e:st+k.d,k:'task',late:k.by==null?null:k.by-k.d};bl.push(x);out.push(x);ok=true;break}st=c.e+B}
+if(!ok)warn.push(k.t+' will not fit before '+mt(lim)+'. Shorten it or move something.')}
+out.sort((a,b)=>a.s-b.s||a.e-b.e);return{items:out,warn}}
+const thePlan=()=>store.get('jw.plan',null);
+function renderPlan(){const e=$('plan'),P=thePlan();e.innerHTML='';if(!P||!P.items.length){e.innerHTML='<div class="empty">No plan yet. Type: plan: train at 18:00 lead 90; report 60m by 16:00</div>';return}
+P.items.forEach(x=>{const d=document.createElement('div');d.className='pl '+x.k;d.innerHTML='<b>'+(x.k==='event'?mt(x.s):mt(x.s)+'–'+mt(x.e))+'</b><span>'+esc(x.t)+'</span>';e.appendChild(d)})}
+function planAct(a){const now=new Date(),today=now.getFullYear()+'-'+p2(now.getMonth()+1)+'-'+p2(now.getDate()),date=a.date||today,d0=new Date(date+'T00:00:00').getTime(),nm=date===today?Math.max(now.getHours()*60+now.getMinutes()+5,0):420;
+const R=buildPlan(a,nm);if(!R.items.length)return say('I could not find any times in that. Try: plan: train at 18:00 lead 90; report 60m by 16:00');
+const lines=R.items.map(x=>(x.k==='event'?mt(x.s):mt(x.s)+'–'+mt(x.e))+'  '+x.t+(x.late!=null?'  (start by '+mt(x.late)+' latest)':'')).concat(R.warn.map(w=>'! '+w));
+card('PLAN · '+date,lines,[['SCHEDULE REMINDERS',async()=>{store.set('jw.plan',{date,items:R.items});renderPlan();let n=0;
+for(const x of R.items){if(x.k==='event')continue;const at=d0+x.s*60000;if(x.k==='travel'){if(await nNote(at-15*60000,'Get ready','Leave in 15 min: '+x.t.slice(10)))n++;if(await nNote(at,'Leave now',x.t))n++}else{if(await nNote(at-10*60000,'Starts in 10 min',x.t))n++;if(await nNote(at,'Start now',x.t))n++}}
+if(!NAT)R.items.forEach(x=>{const ms=d0+x.s*60000-Date.now();if(x.k!=='event'&&ms>0&&ms<864e5)addTimer(ms,x.t)});
+toast(NAT?(n+' reminders set'):'Plan saved. Reminders ring while this page is open.')}]])}
+function localPlan(t){const m=/^plan(\s+tomorrow)?\s*:\s*([\s\S]+)$/i.exec(t.trim());if(!m)return null;const P={action:'plan',fixed:[],travel:[],tasks:[]};if(m[1]){const d=new Date(Date.now()+864e5);P.date=d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate())}
+const T='(\\d{1,2}(?::\\d{2})?\\s*(?:am|pm)?)';let any=false;
+for(const l of m[2].split(/[;\n]/).map(x=>x.trim()).filter(Boolean)){let r;
+if(r=new RegExp('^(.+?)\\s+at\\s+'+T+'(?:\\s+lead\\s+(\\d+)\\s*(m|min|h|hr)?)?$','i').exec(l)){any=true;if(r[3]){const lead=+r[3]*(/h/i.test(r[4]||'')?60:1);P.travel.push({title:r[1],at:r[2],lead})}else P.fixed.push({title:r[1],start:r[2],end:mt((tmin(r[2])||0)+60)})}
+else if(r=new RegExp('^(.+?)\\s+(\\d+(?:\\.\\d+)?)\\s*(m|min|h|hr)s?(?:\\s+by\\s+'+T+')?$','i').exec(l)){any=true;P.tasks.push({title:r[1],minutes:Math.round(+r[2]*(/h/i.test(r[3])?60:1)),by:r[4]})}}
+return any?P:null}
 const enc=encodeURIComponent,z=(d,t)=>d.replace(/-/g,'')+'T'+t.replace(':','')+'00';
 function ensureChat(){if(!cur){const c={id:'c'+Date.now(),title:'New chat',ts:Date.now(),msgs:[]};chats.push(c);cur=c.id}return chats.find(x=>x.id===cur)}
 function say(t,sp){const c=ensureChat(),ts=Date.now();if(!c.msgs.length)$('chat').innerHTML='';c.msgs.push({r:'a',t,ts});c.ts=ts;save();renderList();typeInto(addMsg('a','',ts,false),t);if(sp&&cfg.key){spoken=0;sc=0;capped=false;feed(t,true)}}
@@ -462,6 +499,7 @@ case'email':{let to=a.to||'';if(to&&!to.includes('@')){const f=find(to);if(!f.c)
 case'alarm':{const h=+a.hour,mi=+a.minute,lb=a.message||'Alarm';card('ALARM '+p2(h)+':'+p2(mi),[lb,'Rings while this page is open.'],[['SET',()=>{const d=new Date();d.setHours(h,mi,0,0);if(d<=new Date())d.setDate(d.getDate()+1);addTimer(d-Date.now(),lb);toast('Alarm set for '+p2(h)+':'+p2(mi))}]]);break}
 case'timer':{const sec=+a.seconds;card('TIMER',[Math.floor(sec/60)+' min '+sec%60+' s'],[['SET',()=>{addTimer(sec*1000,'Timer finished');toast('Timer started')}]]);break}
 case'calendar':{const ev=(a.events||[]).filter(e=>e.date&&e.start);if(!ev.length)return;card('CALENDAR · '+ev.length+' item'+(ev.length>1?'s':''),ev.map(e=>e.start+' '+e.title+(e.location?' @ '+e.location:'')),[...ev.map(e=>['ADD '+e.start+' '+e.title.slice(0,18),()=>go('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+enc(e.title)+'&dates='+z(e.date,e.start)+'/'+z(e.date,e.end||e.start)+'&details='+enc(e.details||'')+'&location='+enc(e.location||''))]),['ICS FILE',()=>ics(ev)]]);break}
+case'plan':planAct(a);break;
 case'todo':{let L=todo();(a.add||[]).forEach(t=>L.push(t));(a.done||[]).forEach(t=>{const q=t.toLowerCase();L=L.filter(x=>!x.toLowerCase().includes(q))});setTodo(L);break}
 case'weather':weather(a.query||'');break;
 case'youtube':case'search':case'maps':case'news':{const q=a.query||'',U={youtube:'https://www.youtube.com/results?search_query=',search:'https://www.google.com/search?q=',maps:'https://www.google.com/maps/search/?api=1&query=',news:'https://news.google.com/search?q='}[k];card(k.toUpperCase(),[q],[['OPEN',()=>go(U+enc(q))]]);break}
@@ -489,10 +527,11 @@ PHONE ACTIONS: When the user asks you to message, text, WhatsApp, email, call, o
 CALENDAR AND PLANNING: When the user wants an event, meeting, dated reminder, or help planning their day or to-dos, act as a thoughtful day planner. Use sensible times when none are given (work 9:00-18:00, meals, short breaks, realistic durations, buffers between tasks, demanding work in the morning) and respect any fixed times they give. Show the plan briefly as time – task lines, then end with exactly one line [[ACTION {"action":"calendar","events":[{"title":"","date":"YYYY-MM-DD","start":"HH:MM","end":"HH:MM","details":"","location":""}]}]], resolving words like today or tomorrow from the current date. Say the plan is ready to add and the user taps ADD for each item; never say it is already saved. If the day is truly unclear, ask one short question instead.
 TO-DO LIST: You also keep the user's to-do list (shown below as the saved list). To add or finish tasks end with [[ACTION {"action":"todo","add":["task"],"done":["task"]}]] and confirm in one sentence. When planning, include the saved tasks.`;
 const ART_PROMPT='\nARTIFACTS: Put any file-sized output in ONE fenced block whose opening line is the language then a filename, for example ```python snake.py or ```html index.html. File-sized means a complete program, script, web page, component, config, or any code over about 12 lines. For a report, letter, notes or any document the user may want as a PDF use ```pdf Title with simple markdown inside; for markdown files use ```md Title. Short snippets stay inline with just the language. After the block write one short sentence. Never put prose inside a code fence. Use these language names: html css javascript typescript python java c cpp csharp go rust php sql json shell.';
+const PLAN_PROMPT='\nDAY PLANNING: when the user describes a day with fixed times, journeys or deadlines, reply briefly and end with exactly one line [[ACTION {"action":"plan","date":"YYYY-MM-DD","fixed":[{"title":"","start":"HH:MM","end":"HH:MM"}],"travel":[{"title":"","at":"HH:MM","lead":minutes}],"tasks":[{"title":"","minutes":30,"by":"HH:MM"}]}]]. travel is a journey that departs at "at" and needs "lead" minutes of getting ready and commuting. tasks are work to fit before an optional "by" deadline. The app builds the schedule on the phone and the user taps to set reminders. Never invent times the user did not give.';
 const VOICE_PROMPT='\nLIVE VOICE MODE: the user is speaking out loud and your reply will be spoken aloud. Answer in one to three short, natural spoken sentences like a real conversation. No markdown, lists or code unless they ask for code; if they do, say you have put it on screen.';
 async function stream(c,onChunk,img,deep){
 const url='https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(cfg.model)+':streamGenerateContent?alt=sse&key='+encodeURIComponent(cfg.key);
-const sys=PROMPT+ART_PROMPT+(conv?VOICE_PROMPT:'')+'\nCurrent date and time: '+new Date().toString()+'\nSaved to-do list: '+(todo().join('; ')||'(empty)'),ms=c.msgs.slice(-12);while(ms.length&&ms[0].r!=='u')ms.shift();
+const sys=PROMPT+ART_PROMPT+PLAN_PROMPT+(conv?VOICE_PROMPT:'')+'\nCurrent date and time: '+new Date().toString()+'\nSaved to-do list: '+(todo().join('; ')||'(empty)'),ms=c.msgs.slice(-12);while(ms.length&&ms[0].r!=='u')ms.shift();
 const body=fast=>JSON.stringify({systemInstruction:{parts:[{text:sys}]},contents:ms.map((m,i)=>({role:m.r==='u'?'user':'model',parts:i===ms.length-1&&img?[{text:m.t},{inlineData:{mimeType:'image/jpeg',data:img.b64}}]:[{text:m.t}]})),generationConfig:Object.assign({maxOutputTokens:8192,temperature:.8},fast?{thinkingConfig:{thinkingBudget:0}}:{})});
 const ctl=curCtl=new AbortController(),post=f=>fetch(url,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json'},body:body(f)});
 let r=await post(!deep);if(!r.ok&&!deep)r=await post(false);
@@ -506,7 +545,9 @@ async function send(text){text=(text||'').trim();const img=pend;if(!text&&!img)r
 busy=true;spoken=0;sc=0;capped=false;$('inp').value='';clearImg();vOpen();
 const c=ensureChat();if(!c.msgs.length){c.title=text.slice(0,34);$('chat').innerHTML=''}
 const now=Date.now(),um={r:'u',t:text,ts:now};if(img)um.img=img.th;c.msgs.push(um);c.ts=now;save();renderList();addMsg('u',text,now,false,false,um.img);if(window.CORE)CORE.burst();
+const lp=localPlan(text);if(lp){const m0='Planning it on your phone. Nothing is sent anywhere.';c.msgs.push({r:'a',t:m0,ts:Date.now()});save();typeInto(addMsg('a','',Date.now(),false),m0,()=>{busy=false;planAct(lp)});vClose();return}
 const lc=local(text);if(lc){c.msgs.push({r:'a',t:lc,ts:Date.now()});save();typeInto(addMsg('a','',Date.now(),false),lc,()=>{busy=false});if(cfg.key){spoken=0;sc=0;capped=false;feed(lc,true)}vClose();return}
+if(cfg.priv){busy=false;vClose();typeInto(addMsg('a','',Date.now(),false),'Private mode is on, so nothing is sent to AI. Plan locally, for example: plan: train at 18:00 lead 90; report 60m by 16:00; gym 45m');return}
 if(!cfg.key){busy=false;vClose();typeInto(addMsg('a','',Date.now(),false),'Add your API key first. Tap the gear icon at the top.');openSet();return}
 const w=document.createElement('div');w.className='msg a';
 w.innerHTML='<div class="meta"><span class="av"></span><b>JARWIS</b></div><div class="bub"><div class="think"><div class="bars"><i></i><i></i><i></i><i></i><i></i></div><span class="shim" id="ph">'+PHR[0]+'…</span></div></div>';
@@ -543,20 +584,20 @@ rec.onend=()=>{listening=false;$('mic').classList.toggle('on',conv);if(conv)setT
 rec.onerror=e=>{listening=false;if(e.error==='not-allowed'||e.error==='service-not-allowed'){conv=false;$('mic').classList.remove('on');toast('Microphone permission is blocked.')}}}
 function startRec(){if(!rec||listening)return;try{rec.start();listening=true;mode('listening')}catch(e){}}
 function resumeListen(){if(!conv||listening||busy||streaming)return;if(speaking()&&!cfg.barge)return;startRec()}
-function micToggle(){if(!rec){toast('Voice input is not supported in this browser.');return}
+function micToggle(){if(NAT){toast('Voice input arrives in the next build. Type for now.');return}if(!rec){toast('Voice input is not supported in this browser.');return}
 if(conv){conv=false;clearTimeout(vt);try{rec.abort()}catch(_){}listening=false;$('mic').classList.remove('on');if(!speaking()&&!busy)mode('');toast('Live voice off');return}
 conv=true;ctxA();$('mic').classList.add('on');toast('Live voice on. Just talk.');if(speaking()&&!cfg.barge)stopSpeak();startRec()}
 $('mic').onclick=micToggle;
 /* settings */
-function openSet(){$('key').value=cfg.key;$('mdl').value=cfg.model;$('voice').value=cfg.voice;$('vmodel').value=cfg.vmodel;$('cons').value=store.get('jcon','');$('motion').value=cfg.motion;$('hapt').checked=cfg.haptics!==false;$('elkey').value=cfg.elkey||'';$('elvoice').value=cfg.elvoice;$('elmodel').value=cfg.elmodel;$('barge').checked=!!cfg.barge;$('tts').checked=cfg.tts;$('ovl').classList.add('show')}
+function openSet(){$('key').value=cfg.key;$('mdl').value=cfg.model;$('voice').value=cfg.voice;$('vmodel').value=cfg.vmodel;$('cons').value=store.get('jcon','');$('motion').value=cfg.motion;$('hapt').checked=cfg.haptics!==false;$('elkey').value=cfg.elkey||'';$('elvoice').value=cfg.elvoice;$('elmodel').value=cfg.elmodel;$('barge').checked=!!cfg.barge;$('priv').checked=!!cfg.priv;$('tts').checked=cfg.tts;$('ovl').classList.add('show')}
 $('gear').onclick=openSet;$('cancel').onclick=()=>$('ovl').classList.remove('show');
 $('ovl').onclick=e=>{if(e.target===$('ovl'))$('ovl').classList.remove('show')};
-$('save').onclick=()=>{Object.assign(cfg,{key:$('key').value.trim(),model:$('mdl').value.trim()||'gemini-flash-latest',tts:$('tts').checked,voice:$('voice').value,vmodel:$('vmodel').value.trim()||'gemini-2.5-flash-preview-tts',motion:$('motion').value,haptics:$('hapt').checked,elkey:$('elkey').value.trim(),elvoice:$('elvoice').value.trim()||'JBFqnCBsd6RMkjVDRZzb',elmodel:$('elmodel').value,barge:$('barge').checked});store.set('jw.cfg',cfg);store.set('jcon',$('cons').value);tf=0;tdown=0;status();spk();if(window.CORE)CORE.apply();$('ovl').classList.remove('show')};
+$('save').onclick=()=>{Object.assign(cfg,{key:$('key').value.trim(),model:$('mdl').value.trim()||'gemini-flash-latest',tts:$('tts').checked,voice:$('voice').value,vmodel:$('vmodel').value.trim()||'gemini-2.5-flash-preview-tts',motion:$('motion').value,haptics:$('hapt').checked,elkey:$('elkey').value.trim(),elvoice:$('elvoice').value.trim()||'JBFqnCBsd6RMkjVDRZzb',elmodel:$('elmodel').value,barge:$('barge').checked,priv:$('priv').checked});store.set('jw.cfg',cfg);store.set('jcon',$('cons').value);tf=0;tdown=0;status();spk();if(window.CORE)CORE.apply();$('ovl').classList.remove('show')};
 document.querySelectorAll('.sw').forEach(b=>b.onclick=()=>{cfg.theme=b.dataset.t;store.set('jw.cfg',cfg);applyTheme()});
 $('test').onclick=()=>{const k=$('key').value.trim();if(k)cfg.key=k;Object.assign(cfg,{tts:true,voice:$('voice').value,elkey:$('elkey').value.trim(),elvoice:$('elvoice').value.trim()||cfg.elvoice,elmodel:$('elmodel').value});tf=0;tdown=0;stopSpeak();ctxA();vOpen();spoken=0;sc=0;capped=false;speakChunk('Good evening, boss. JARWIS at your service.');vClose()};
 document.addEventListener('keydown',e=>{if(e.key==='Escape')$('ovl').classList.remove('show')});
 
-icons();applyTheme(false);chips();renderTodo();newChat();$('apx').innerHTML=ic('x');
+$('plclr').onclick=()=>{store.set('jw.plan',null);renderPlan()};renderPlan();icons();applyTheme(false);chips();renderTodo();newChat();$('apx').innerHTML=ic('x');
 $('chat').addEventListener('click',e=>{const a=e.target.closest('.art');if(a)openArt(a.dataset.mk,+a.dataset.i)});
 $('apx').onclick=closeArt;$('apview').onclick=()=>{AP.view=AP.view==='preview'?'code':'preview';AP.auto=1;renderPanel()};
 $('apcopy').onclick=()=>{const a=curArt();if(a){try{navigator.clipboard.writeText(a.code);toast('Copied')}catch(_){}}};$('apdl').onclick=()=>{const a=curArt();if(a)dl(a)};
