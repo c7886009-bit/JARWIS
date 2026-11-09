@@ -1,0 +1,7 @@
+{
+  "appId": "com.personal.jarwis",
+  "appName": "JARWIS",
+  "webDir": "www",
+  "server": { "androidScheme": "https" },
+  "android": { "backgroundColor": "#030409" }
+}
